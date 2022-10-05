@@ -16,5 +16,25 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of drive_downloaders is o provide some helper functions for using the
+The goal of drive_downloaders is to provide some helper functions for using the
 {googledrive} package. Nothing fancy just useful.
+
+```{r}
+library(googledrive)
+source("drive_downloaders.R")
+
+# .email <- "EMAIL"
+# googledrive::drive_auth(.email)
+
+.url <- "https://drive.google.com/drive/folders/1rRPmBZT0OhU-sFDmvWCKEMiYt7Tqh8aM"
+.dirname <- "Drive-DL-testing"
+drive_download_dir(drive.folder=.dirname)
+
+
+#install.packages(fs)
+library(fs)
+dir_tree(path = "Drive-DL-testing", recurse = TRUE)
+
+
+```
+
