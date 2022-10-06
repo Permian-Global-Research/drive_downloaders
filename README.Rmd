@@ -21,6 +21,7 @@ The goal of drive_downloaders is to provide some helper functions for using the
 
 ```{r}
 library(googledrive)
+library(fs)
 source("drive_downloaders.R")
 
 # .email <- "EMAIL"
@@ -28,12 +29,14 @@ source("drive_downloaders.R")
 
 .url <- "https://drive.google.com/drive/folders/1rRPmBZT0OhU-sFDmvWCKEMiYt7Tqh8aM"
 .dirname <- "Drive-DL-testing"
-drive_download_dir(drive.folder=.dirname)
 
-
-#install.packages(fs)
-library(fs)
-dir_tree(path = "Drive-DL-testing", recurse = TRUE)
+d <- suppressMessages(
+    drive_download_dir(drive.folder="Drive-DL-testing")
+    )
+  
+  print(d)
+  
+  dir_tree(path = "Drive-DL-testing", recurse = TRUE)
 
 
 ```
