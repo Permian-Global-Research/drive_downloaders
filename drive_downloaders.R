@@ -8,12 +8,14 @@
 #' @return The original input dribble
 #' @noRd
 drive_down_files <- function(x, .overwrite = TRUE) {
-  .x <- dplyr::select(x, !drive_resource)
+  
+  .x <- x[, !(names(x) == "drive_resource")]
+  
   purrr::pwalk(.x, function(...){
     drib <- list(...)
     .dir <- dirname(drib$path)
     if (!dir.exists(.dir)) dir.create(.dir, recursive = TRUE)
-    drive_download(drib$id, drib$path, overwrite = .overwrite)
+    googledrive::drive_download(drib$id, drib$path, overwrite = .overwrite)
   })
   return(x)
 }
@@ -29,11 +31,11 @@ drive_down_files <- function(x, .overwrite = TRUE) {
 #' @noRd
 split_files_n_folds <- function(drive.parent){
   
-  dr_fold <- drive_ls(drive.parent, type='folder')
-  dr_all <- drive_ls(drive.parent, type=NULL)
+  dr_fold <- googledrive::drive_ls(drive.parent, type='folder')
+  dr_all <- googledrive::drive_ls(drive.parent, type=NULL)
   
-  files <- generics::setdiff(dr_all, dr_fold)|>
-    dplyr::mutate(path = file.path(drive.parent, name))
+  files <- generics::setdiff(dr_all, dr_fold)
+  files$path <- file.path(drive.parent, files$name)
   
   if (nrow(dr_fold)>0){
     p.list <- file.path(drive.parent, dr_fold$name)
@@ -42,7 +44,7 @@ split_files_n_folds <- function(drive.parent){
   }
   
   if (exists("drib.deep")) {
-    .f <- dplyr::bind_rows(files, drib.deep)
+    .f <- do.call("rbind", c(list(files),drib.deep))
   } else {
     .f <- files
   }
@@ -69,17 +71,19 @@ split_files_n_folds <- function(drive.parent){
 #' @export
 #'
 #' @examples
-drive_download_dir <- function(drive.folder, dest.folder=here::here(), 
+drive_download_dir <- function(drive.folder, dest.folder=getwd(), 
                                fileext=NULL){
+  if(!googledrive::is_folder(
+    suppressMessages(googledrive::drive_get(drive.folder)))){
+    stop("A Google Drive folder for drive.folder is required.")
+  }
+  .parent <- googledrive::drive_get(drive.folder)$name
   
-  .parent <- drive_get(drive.folder)$name
-  
-  file.drib <- split_files_n_folds(.parent)|>
-    dplyr::mutate(path=file.path(dest.folder, path))
+  file.drib <- split_files_n_folds(.parent)
+  file.drib$path <- file.path(dest.folder, file.drib$path)
   
   if (!is.null(fileext)){
-    file.drib <- file.drib |>
-      dplyr::filter(grepl(fileext, name))
+    file.drib <- file.drib[grepl(fileext, file.drib$name),]
   }
   
   if (nrow(file.drib)<1) stop("There are no files to download!")

@@ -1,21 +1,28 @@
 library(googledrive)
 source("drive_downloaders.R")
+# source("drive_download_dir_alt.R")
 # -------------------------------------------------------------------------#
 .email <- "EMAIL"
 
 googledrive::drive_auth()
 
-d <- drive_download_dir(drive.folder="Drive-DL-testing")
+d <- drive_download_dir(drive.folder="Drive-DL-testing", fileext = ".R")
 
 drive_get("Drive-DL-testing") |>
   as_id() |>
   drive_dir_down()
 
 .url <- "https://drive.google.com/drive/folders/1rRPmBZT0OhU-sFDmvWCKEMiYt7Tqh8aM"
+drive_ls(.url, recursive = TRUE)
+
 d <- drive_download_dir(drive.folder=.url)
 
-#install.packages(fs)
 
+d2 <- drive_download_dir_alt(.url)
+
+
+#install.packages(fs)
+googledrive::drive_get(id = )
 
 
 reprex::reprex({
