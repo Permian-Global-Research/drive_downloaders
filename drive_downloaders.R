@@ -12,9 +12,8 @@ drive_down_files <- function(x, .overwrite = TRUE) {
   purrr::pwalk(.x, function(...){
     drib <- list(...)
     .dir <- dirname(drib$path)
-    .file <- file.path(.dir, basename( drib$path))
     if (!dir.exists(.dir)) dir.create(.dir, recursive = TRUE)
-    drive_download(drib$id, .file, overwrite = .overwrite)
+    drive_download(drib$id, drib$path, overwrite = .overwrite)
   })
   return(x)
 }
@@ -31,7 +30,6 @@ drive_down_files <- function(x, .overwrite = TRUE) {
 split_files_n_folds <- function(drive.parent){
   
   dr_fold <- drive_ls(drive.parent, type='folder')
-  
   dr_all <- drive_ls(drive.parent, type=NULL)
   
   files <- generics::setdiff(dr_all, dr_fold)|>
